@@ -1,8 +1,6 @@
 from flask import Flask, request
 
 app = Flask(__name__)
-csrf = CSRFProtect()
-csrf.init_app(app)
 
 @app.route('/hello')
 def hello():
