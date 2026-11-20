@@ -9,15 +9,35 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Test - Dependency check') {
             steps {
-                echo 'Probando'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    bat 'if not exist reports mkdir reports'
+
+                    dependencyCheck(
+                        odcInstallation: 'Dependency-Check',
+                        nvdCredentialsId: 'nvd-api-keyy',
+                        additionalArguments: '--scan . --format HTML --format XML --out reports'
+                    )
+                }
             }
         }
 
-        stage('Analyze') {
+        stage('SonarQube Analysis') {
             steps {
-                echo 'Analizando'
+                script {
+                    def scannerHome = tool 'SonarScanner'
+
+                    withSonarQubeEnv('SonarQube-Server') {
+                        bat """
+                            "${scannerHome}\\bin\\sonar-scanner.bat" ^
+                            -Dsonar.projectKey=EV3-cbsgrudajksdnvf ^
+                            -Dsonar.projectName=EV3-cbsgrudajksdnvf ^
+                            -Dsonar.sources=. ^
+                            -Dsonar.exclusions=**/reports/**
+                        """
+                    }
+                }
             }
         }
 
