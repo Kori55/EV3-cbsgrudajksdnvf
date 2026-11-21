@@ -51,6 +51,7 @@ pipeline {
                     pushd "C:\\Program Files\\ZAP\\Zed Attack Proxy"
 
                     call zap.bat ^
+                        -port 8090 ^
                         -cmd ^
                         -quickurl "http://127.0.0.1:5005" ^
                         -quickout "%WORKSPACE%\\reports\\zap-report.html" ^
@@ -65,10 +66,12 @@ pipeline {
 
             post {
                 always {
-                    archiveArtifacts artifacts: 'reports/zap-report.html', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'reports/zap-report.html',
+                                     allowEmptyArchive: true
                 }
             }
         }
+
 
         stage('Deploy') {
             steps {
