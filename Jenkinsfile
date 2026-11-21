@@ -48,25 +48,30 @@ pipeline {
                 bat '''
                     if not exist "%WORKSPACE%\\reports" mkdir "%WORKSPACE%\\reports"
 
-                    "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat" ^
-                    -cmd ^
-                    -quickurl http://127.0.0.1:5005 ^
-                    -quickout "%WORKSPACE%\\reports\\zap-report.html" ^
-                    -quickprogress
+                    pushd "C:\\Program Files\\ZAP\\Zed Attack Proxy"
+
+                    call zap.bat ^
+                        -cmd ^
+                        -quickurl "http://127.0.0.1:5005" ^
+                        -quickout "%WORKSPACE%\\reports\\zap-report.html" ^
+                        -quickprogress
+
+                    set "ZAP_EXIT=%ERRORLEVEL%"
+                    popd
+
+                    exit /b %ZAP_EXIT%
                 '''
             }
-
-            post {
-                always {
-                    archiveArtifacts artifacts: 'reports/zap-report.html',
-                                     allowEmptyArchive: true
-                }
-            }
-        }
 
         stage('Deploy') {
             steps {
                 echo 'Desplegando'
+            }
+        }
+
+        post {
+            always {
+                archiveArtifacts artifacts: 'reports/zap-report.html', allowEmptyArchive: true
             }
         }
     }
