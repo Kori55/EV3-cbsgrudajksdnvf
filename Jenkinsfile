@@ -9,7 +9,7 @@ pipeline {
             }
         }
 
-        stage('Test - Dependency check') {
+        stage('Dependency check') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     bat 'if not exist reports mkdir reports'
@@ -37,6 +37,29 @@ pipeline {
                             -Dsonar.exclusions=**/reports/**
                         """
                     }
+                }
+            }
+        }
+
+        stage('OWASP ZAP Security Scan') {
+            steps {
+                echo 'Iniciando analisis de seguridad con OWASP ZAP...'
+
+                bat '''
+                    if not exist "%WORKSPACE%\\reports" mkdir "%WORKSPACE%\\reports"
+
+                    "C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat" ^
+                    -cmd ^
+                    -quickurl http://127.0.0.1:5005 ^
+                    -quickout "%WORKSPACE%\\reports\\zap-report.html" ^
+                    -quickprogress
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts artifacts: 'reports/zap-report.html',
+                                     allowEmptyArchive: true
                 }
             }
         }
