@@ -63,15 +63,16 @@ pipeline {
                 '''
             }
 
-        stage('Deploy') {
-            steps {
-                echo 'Desplegando'
+            post {
+                always {
+                    archiveArtifacts artifacts: 'reports/zap-report.html', allowEmptyArchive: true
+                }
             }
         }
 
-        post {
-            always {
-                archiveArtifacts artifacts: 'reports/zap-report.html', allowEmptyArchive: true
+        stage('Deploy') {
+            steps {
+                echo 'Desplegando'
             }
         }
     }
