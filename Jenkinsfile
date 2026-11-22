@@ -53,7 +53,7 @@ pipeline {
                     call zap.bat ^
                         -port 8090 ^
                         -cmd ^
-                        -quickurl "http://127.0.0.1:5005" ^
+                        -quickurl "http://127.0.0.1:5005/hello" ^
                         -quickout "%WORKSPACE%\\reports\\zap-report.html" ^
                         -quickprogress
 
